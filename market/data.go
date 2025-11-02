@@ -31,7 +31,7 @@ type OIData struct {
 	Average float64
 }
 
-// IntradayData 日内数据(3分钟间隔)
+// IntradayData 日内数据(5分钟间隔)
 type IntradayData struct {
 	MidPrices   []float64
 	EMA20Values []float64
@@ -68,10 +68,10 @@ func Get(symbol string) (*Data, error) {
 	// 标准化symbol
 	symbol = Normalize(symbol)
 
-	// 获取3分钟K线数据 (最近10个)
-	klines3m, err := getKlines(symbol, "3m", 40) // 多获取一些用于计算
+	// 获取5分钟K线数据 (最近10个)
+	klines5m, err := getKlines(symbol, "5m", 40) // 多获取一些用于计算
 	if err != nil {
-		return nil, fmt.Errorf("获取3分钟K线失败: %v", err)
+		return nil, fmt.Errorf("获取5分钟K线失败: %v", err)
 	}
 
 	// 获取4小时K线数据 (最近10个)
@@ -80,17 +80,17 @@ func Get(symbol string) (*Data, error) {
 		return nil, fmt.Errorf("获取4小时K线失败: %v", err)
 	}
 
-	// 计算当前指标 (基于3分钟最新数据)
-	currentPrice := klines3m[len(klines3m)-1].Close
-	currentEMA20 := calculateEMA(klines3m, 20)
-	currentMACD := calculateMACD(klines3m)
-	currentRSI7 := calculateRSI(klines3m, 7)
+	// 计算当前指标 (基于5分钟最新数据)
+	currentPrice := klines5m[len(klines5m)-1].Close
+	currentEMA20 := calculateEMA(klines5m, 20)
+	currentMACD := calculateMACD(klines5m)
+	currentRSI7 := calculateRSI(klines5m, 7)
 
 	// 计算价格变化百分比
-	// 1小时价格变化 = 20个3分钟K线前的价格
+	// 1小时价格变化 = 20个5分钟K线前的价格
 	priceChange1h := 0.0
-	if len(klines3m) >= 21 { // 至少需要21根K线 (当前 + 20根前)
-		price1hAgo := klines3m[len(klines3m)-21].Close
+	if len(klines5m) >= 21 { // 至少需要21根K线 (当前 + 20根前)
+		price1hAgo := klines5m[len(klines5m)-21].Close
 		if price1hAgo > 0 {
 			priceChange1h = ((currentPrice - price1hAgo) / price1hAgo) * 100
 		}
@@ -116,7 +116,7 @@ func Get(symbol string) (*Data, error) {
 	fundingRate, _ := getFundingRate(symbol)
 
 	// 计算日内系列数据
-	intradayData := calculateIntradaySeries(klines3m)
+	intradayData := calculateIntradaySeries(klines5m)
 
 	// 计算长期数据
 	longerTermData := calculateLongerTermData(klines4h)

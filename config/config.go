@@ -11,7 +11,7 @@ import (
 type TraderConfig struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
-	Enabled bool   `json:"enabled"` // 是否启用该trader
+	Enabled bool   `json:"enabled"`  // 是否启用该trader
 	AIModel string `json:"ai_model"` // "qwen" or "deepseek"
 
 	// 交易平台选择（二选一）
@@ -170,7 +170,7 @@ func (c *Config) Validate() error {
 			return fmt.Errorf("trader[%d]: initial_balance必须大于0", i)
 		}
 		if trader.ScanIntervalMinutes <= 0 {
-			trader.ScanIntervalMinutes = 3 // 默认3分钟
+			trader.ScanIntervalMinutes = 3 // 默认5分钟
 		}
 	}
 

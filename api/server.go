@@ -303,7 +303,7 @@ func (s *Server) handleEquityHistory(c *gin.Context) {
 	}
 
 	// 获取尽可能多的历史数据（几天的数据）
-	// 每3分钟一个周期：10000条 = 约20天的数据
+	// 每5分钟一个周期：10000条 = 约20天的数据
 	records, err := trader.GetDecisionLogger().GetLatestRecords(10000)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -389,7 +389,7 @@ func (s *Server) handlePerformance(c *gin.Context) {
 	}
 
 	// 分析最近100个周期的交易表现（避免长期持仓的交易记录丢失）
-	// 假设每3分钟一个周期，100个周期 = 5小时，足够覆盖大部分交易
+	// 假设每5分钟一个周期，100个周期 = 5小时，足够覆盖大部分交易
 	performance, err := trader.GetDecisionLogger().AnalyzePerformance(100)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

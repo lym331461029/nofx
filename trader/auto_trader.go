@@ -50,7 +50,7 @@ type AutoTraderConfig struct {
 	CustomModelName string
 
 	// 扫描配置
-	ScanInterval time.Duration // 扫描间隔（建议3分钟）
+	ScanInterval time.Duration // 扫描间隔（建议5分钟）
 
 	// 账户配置
 	InitialBalance float64 // 初始金额（用于计算盈亏，需手动设置）
@@ -511,7 +511,7 @@ func (at *AutoTrader) buildTradingContext() (*decision.Context, error) {
 	}
 
 	// 5. 分析历史表现（最近100个周期，避免长期持仓的交易记录丢失）
-	// 假设每3分钟一个周期，100个周期 = 5小时，足够覆盖大部分交易
+	// 假设每5分钟一个周期，100个周期 = 5小时，足够覆盖大部分交易
 	performance, err := at.decisionLogger.AnalyzePerformance(100)
 	if err != nil {
 		log.Printf("⚠️  分析历史表现失败: %v", err)
