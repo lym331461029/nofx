@@ -10,87 +10,35 @@ import (
 	"strings"
 )
 
-// Data 市场数据结构
-type Data struct {
-	Symbol            string
-	CurrentPrice      float64
-	PriceChange1h     float64 // 1小时价格变化百分比
-	PriceChange4h     float64 // 4小时价格变化百分比
-	CurrentEMA20      float64
-	CurrentMACD       float64
-	CurrentRSI7       float64
-	OpenInterest      *OIData
-	FundingRate       float64
-	IntradaySeries    *IntradayData
-	LongerTermContext *LongerTermData
-}
-
-// OIData Open Interest数据
-type OIData struct {
-	Latest  float64
-	Average float64
-}
-
-// IntradayData 日内数据(5分钟间隔)
-type IntradayData struct {
-	MidPrices   []float64
-	EMA20Values []float64
-	MACDValues  []float64
-	RSI7Values  []float64
-	RSI14Values []float64
-}
-
-// LongerTermData 长期数据(4小时时间框架)
-type LongerTermData struct {
-	EMA20         float64
-	EMA50         float64
-	ATR3          float64
-	ATR14         float64
-	CurrentVolume float64
-	AverageVolume float64
-	MACDValues    []float64
-	RSI14Values   []float64
-}
-
-// Kline K线数据
-type Kline struct {
-	OpenTime  int64
-	Open      float64
-	High      float64
-	Low       float64
-	Close     float64
-	Volume    float64
-	CloseTime int64
-}
-
 // Get 获取指定代币的市场数据
 func Get(symbol string) (*Data, error) {
+	var klines3m, klines4h []Kline
+	var err error
 	// 标准化symbol
 	symbol = Normalize(symbol)
-
-	// 获取5分钟K线数据 (最近10个)
-	klines5m, err := getKlines(symbol, "5m", 40) // 多获取一些用于计算
+	// 获取3分钟K线数据 (最近10个)
+	klines3m, err = WSMonitorCli.GetCurrentKlines(symbol, "3m") // 多获取一些用于计算
 	if err != nil {
-		return nil, fmt.Errorf("获取5分钟K线失败: %v", err)
+		return nil, fmt.Errorf("获取3分钟K线失败: %v", err)
 	}
 
 	// 获取4小时K线数据 (最近10个)
-	klines4h, err := getKlines(symbol, "4h", 60) // 多获取用于计算指标
+	klines4h, err = WSMonitorCli.GetCurrentKlines(symbol, "4h") // 多获取用于计算指标
 	if err != nil {
 		return nil, fmt.Errorf("获取4小时K线失败: %v", err)
 	}
 
-	// 计算当前指标 (基于5分钟最新数据)
-	currentPrice := klines5m[len(klines5m)-1].Close
-	currentEMA20 := calculateEMA(klines5m, 20)
-	currentMACD := calculateMACD(klines5m)
-	currentRSI7 := calculateRSI(klines5m, 7)
+	// 计算当前指标 (基于3分钟最新数据)
+	currentPrice := klines3m[len(klines3m)-1].Close
+	currentEMA20 := calculateEMA(klines3m, 20)
+	currentMACD := calculateMACD(klines3m)
+	currentRSI7 := calculateRSI(klines3m, 7)
 
 	// 计算价格变化百分比
-	// 1小时价格变化 = 20个5分钟K线前的价格
+	// 1小时价格变化 = 20个3分钟K线前的价格
 	priceChange1h := 0.0
-	if len(klines5m) >= 21 { // 至少需要21根K线 (当前 + 20根前)
-		price1hAgo := klines5m[len(klines5m)-21].Close
+	if len(klines3m) >= 21 { // 至少需要21根K线 (当前 + 20根前)
+		price1hAgo := klines3m[len(klines3m)-21].Close
 		if price1hAgo > 0 {
 			priceChange1h = ((currentPrice - price1hAgo) / price1hAgo) * 100
 		}
@@ -116,7 +64,7 @@ func Get(symbol string) (*Data, error) {
 	fundingRate, _ := getFundingRate(symbol)
 
 	// 计算日内系列数据
-	intradayData := calculateIntradaySeries(klines5m)
+	intradayData := calculateIntradaySeries(klines3m)
 
 	// 计算长期数据
 	longerTermData := calculateLongerTermData(klines4h)
@@ -134,51 +82,6 @@ func Get(symbol string) (*Data, error) {
 		IntradaySeries:    intradayData,
 		LongerTermContext: longerTermData,
 	}, nil
-}
-
-// getKlines 从Binance获取K线数据
-func getKlines(symbol, interval string, limit int) ([]Kline, error) {
-	url := fmt.Sprintf("https://fapi.binance.com/fapi/v1/klines?symbol=%s&interval=%s&limit=%d",
-		symbol, interval, limit)
-
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var rawData [][]interface{}
-	if err := json.Unmarshal(body, &rawData); err != nil {
-		return nil, err
-	}
-
-	klines := make([]Kline, len(rawData))
-	for i, item := range rawData {
-		openTime := int64(item[0].(float64))
-		open, _ := parseFloat(item[1])
-		high, _ := parseFloat(item[2])
-		low, _ := parseFloat(item[3])
-		close, _ := parseFloat(item[4])
-		volume, _ := parseFloat(item[5])
-		closeTime := int64(item[6].(float64))
-
-		klines[i] = Kline{
-			OpenTime:  openTime,
-			Open:      open,
-			High:      high,
-			Low:       low,
-			Close:     close,
-			Volume:    volume,
-			CloseTime: closeTime,
-		}
-	}
-
-	return klines, nil
 }
 
 // calculateEMA 计算EMA
@@ -470,7 +373,7 @@ func Format(data *Data) string {
 	sb.WriteString(fmt.Sprintf("Funding Rate: %.2e\n\n", data.FundingRate))
 
 	if data.IntradaySeries != nil {
-		sb.WriteString("Intraday series (5‑minute intervals, oldest → latest):\n\n")
+		sb.WriteString("Intraday series (3‑minute intervals, oldest → latest):\n\n")
 
 		if len(data.IntradaySeries.MidPrices) > 0 {
 			sb.WriteString(fmt.Sprintf("Mid prices: %s\n\n", formatFloatSlice(data.IntradaySeries.MidPrices)))
