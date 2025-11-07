@@ -19,12 +19,12 @@ services:
       - TZ=${NOFX_TIMEZONE:-Asia/Shanghai}  # Set timezone
     networks:
       - nofx-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 60s
 
   # Frontend service (static serving and proxy)
   nofx-frontend:
@@ -39,12 +39,12 @@ services:
       - nofx-network
     depends_on:
       - nofx
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
+#    healthcheck:
+#      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 5s
 
 networks:
   nofx-network:
