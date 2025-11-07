@@ -17,7 +17,7 @@ FROM alpine:${ALPINE_VERSION} AS ta-lib-builder
 ARG TA_LIB_VERSION
 
 RUN apk update && apk add --no-cache \
-    wget tar make gcc g++ musl-dev autoconf automake
+    wget tar make gcc g++ musl-dev autoconf automake curl
 
 RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-${TA_LIB_VERSION}-src.tar.gz && \
     tar -xzf ta-lib-${TA_LIB_VERSION}-src.tar.gz && \
