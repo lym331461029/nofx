@@ -4,16 +4,18 @@ import "time"
 
 // Data 市场数据结构
 type Data struct {
-	Symbol            string
-	CurrentPrice      float64
-	PriceChange1h     float64 // 1小时价格变化百分比
-	PriceChange4h     float64 // 4小时价格变化百分比
-	CurrentEMA20      float64
-	CurrentMACD       float64
-	CurrentRSI7       float64
-	OpenInterest      *OIData
-	FundingRate       float64
-	IntradaySeries    *IntradayData
+	Symbol         string
+	CurrentPrice   float64
+	PriceChange1h  float64 // 1小时价格变化百分比
+	PriceChange4h  float64 // 4小时价格变化百分比
+	CurrentEMA20   float64
+	CurrentMACD    float64
+	CurrentRSI7    float64
+	OpenInterest   *OIData
+	FundingRate    float64
+	IntradaySeries *IntradayData
+	//IntradaySeries30m *IntradayData
+	MiddleTermContext *LongerTermData
 	LongerTermContext *LongerTermData
 }
 

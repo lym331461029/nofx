@@ -10,18 +10,19 @@ import (
 )
 
 type WSMonitor struct {
-	wsClient       *WSClient
-	combinedClient *CombinedStreamsClient
-	symbols        []string
-	featuresMap    sync.Map
-	alertsChan     chan Alert
-	klineDataMap5m sync.Map // 存储每个交易对的K线历史数据
-	klineDataMap4h sync.Map // 存储每个交易对的K线历史数据
-	tickerDataMap  sync.Map // 存储每个交易对的ticker数据
-	batchSize      int
-	filterSymbols  sync.Map // 使用sync.Map来存储需要监控的币种和其状态
-	symbolStats    sync.Map // 存储币种统计信息
-	FilterSymbol   []string //经过筛选的币种
+	wsClient        *WSClient
+	combinedClient  *CombinedStreamsClient
+	symbols         []string
+	featuresMap     sync.Map
+	alertsChan      chan Alert
+	klineDataMap5m  sync.Map // 存储每个交易对的K线历史数据
+	klineDataMap30m sync.Map
+	klineDataMap4h  sync.Map // 存储每个交易对的K线历史数据
+	tickerDataMap   sync.Map // 存储每个交易对的ticker数据
+	batchSize       int
+	filterSymbols   sync.Map // 使用sync.Map来存储需要监控的币种和其状态
+	symbolStats     sync.Map // 存储币种统计信息
+	FilterSymbol    []string //经过筛选的币种
 }
 type SymbolStats struct {
 	LastActiveTime   time.Time
@@ -32,7 +33,7 @@ type SymbolStats struct {
 }
 
 var WSMonitorCli *WSMonitor
-var subKlineTime = []string{"5m", "4h"} // 管理订阅流的K线周期
+var subKlineTime = []string{"5m", "30m", "4h"} // 管理订阅流的K线周期
 
 func NewWSMonitor(batchSize int) *WSMonitor {
 	WSMonitorCli = &WSMonitor{
@@ -99,6 +100,18 @@ func (m *WSMonitor) initializeHistoricalData() error {
 				m.klineDataMap5m.Store(s, klines)
 				log.Printf("已加载 %s 的历史K线数据-5m: %d 条", s, len(klines))
 			}
+
+			// 获取历史K线数据
+			klines30m, err := apiClient.GetKlines(s, "30m", 100)
+			if err != nil {
+				log.Printf("获取 %s 历史数据失败: %v", s, err)
+				return
+			}
+			if len(klines30m) > 0 {
+				m.klineDataMap30m.Store(s, klines30m)
+				log.Printf("已加载 %s 的历史K线数据-30m: %d 条", s, len(klines30m))
+			}
+
 			// 获取历史K线数据
 			klines4h, err := apiClient.GetKlines(s, "4h", 100)
 			if err != nil {
@@ -182,6 +195,8 @@ func (m *WSMonitor) getKlineDataMap(_time string) *sync.Map {
 	var klineDataMap *sync.Map
 	if _time == "5m" {
 		klineDataMap = &m.klineDataMap5m
+	} else if _time == "30m" {
+		klineDataMap = &m.klineDataMap30m
 	} else if _time == "4h" {
 		klineDataMap = &m.klineDataMap4h
 	} else {

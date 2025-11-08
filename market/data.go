@@ -22,6 +22,11 @@ func Get(symbol string) (*Data, error) {
 		return nil, fmt.Errorf("获取5分钟K线失败: %v", err)
 	}
 
+	klines30m, err := WSMonitorCli.GetCurrentKlines(symbol, "30m")
+	if err != nil {
+		return nil, fmt.Errorf("获取30分钟K线失败: %v", err)
+	}
+
 	// 获取4小时K线数据 (最近10个)
 	klines4h, err = WSMonitorCli.GetCurrentKlines(symbol, "4h") // 多获取用于计算指标
 	if err != nil {
@@ -66,6 +71,8 @@ func Get(symbol string) (*Data, error) {
 	// 计算日内系列数据
 	intradayData := calculateIntradaySeries(klines5m)
 
+	middleTermData := calculateLongerTermData(klines30m)
+
 	// 计算长期数据
 	longerTermData := calculateLongerTermData(klines4h)
 
@@ -80,6 +87,7 @@ func Get(symbol string) (*Data, error) {
 		OpenInterest:      oiData,
 		FundingRate:       fundingRate,
 		IntradaySeries:    intradayData,
+		MiddleTermContext: middleTermData,
 		LongerTermContext: longerTermData,
 	}, nil
 }
@@ -373,7 +381,7 @@ func Format(data *Data) string {
 	sb.WriteString(fmt.Sprintf("Funding Rate: %.2e\n\n", data.FundingRate))
 
 	if data.IntradaySeries != nil {
-		sb.WriteString("Intraday series (3‑minute intervals, oldest → latest):\n\n")
+		sb.WriteString("Intraday series (5‑minute intervals, oldest → latest):\n\n")
 
 		if len(data.IntradaySeries.MidPrices) > 0 {
 			sb.WriteString(fmt.Sprintf("Mid prices: %s\n\n", formatFloatSlice(data.IntradaySeries.MidPrices)))
@@ -393,6 +401,27 @@ func Format(data *Data) string {
 
 		if len(data.IntradaySeries.RSI14Values) > 0 {
 			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI14Values)))
+		}
+	}
+
+	if data.MiddleTermContext != nil {
+		sb.WriteString("Medium‑term context (30m timeframe):\n\n")
+
+		sb.WriteString(fmt.Sprintf("20‑Period EMA: %.3f vs. 50‑Period EMA: %.3f\n\n",
+			data.LongerTermContext.EMA20, data.LongerTermContext.EMA50))
+
+		sb.WriteString(fmt.Sprintf("3‑Period ATR: %.3f vs. 14‑Period ATR: %.3f\n\n",
+			data.LongerTermContext.ATR3, data.LongerTermContext.ATR14))
+
+		sb.WriteString(fmt.Sprintf("Current Volume: %.3f vs. Average Volume: %.3f\n\n",
+			data.LongerTermContext.CurrentVolume, data.LongerTermContext.AverageVolume))
+
+		if len(data.LongerTermContext.MACDValues) > 0 {
+			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.LongerTermContext.MACDValues)))
+		}
+
+		if len(data.LongerTermContext.RSI14Values) > 0 {
+			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.LongerTermContext.RSI14Values)))
 		}
 	}
 
