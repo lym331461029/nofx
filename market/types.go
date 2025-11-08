@@ -28,7 +28,9 @@ type OIData struct {
 // IntradayData 日内数据(3分钟间隔)
 type IntradayData struct {
 	MidPrices   []float64
+	EMA5Values  []float64
 	EMA20Values []float64
+	EMA50Values []float64
 	MACDValues  []float64
 	RSI7Values  []float64
 	RSI14Values []float64
@@ -36,6 +38,7 @@ type IntradayData struct {
 
 // LongerTermData 长期数据(4小时时间框架)
 type LongerTermData struct {
+	EMA5          float64
 	EMA20         float64
 	EMA50         float64
 	ATR3          float64

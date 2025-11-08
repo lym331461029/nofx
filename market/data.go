@@ -210,6 +210,7 @@ func calculateATR(klines []Kline, period int) float64 {
 func calculateIntradaySeries(klines []Kline) *IntradayData {
 	data := &IntradayData{
 		MidPrices:   make([]float64, 0, 10),
+		EMA5Values:  make([]float64, 0, 10),
 		EMA20Values: make([]float64, 0, 10),
 		MACDValues:  make([]float64, 0, 10),
 		RSI7Values:  make([]float64, 0, 10),
@@ -225,10 +226,20 @@ func calculateIntradaySeries(klines []Kline) *IntradayData {
 	for i := start; i < len(klines); i++ {
 		data.MidPrices = append(data.MidPrices, klines[i].Close)
 
+		if i >= 4 {
+			ema4 := calculateEMA(klines[:i+1], 4)
+			data.EMA5Values = append(data.EMA5Values, ema4)
+		}
+
 		// 计算每个点的EMA20
 		if i >= 19 {
 			ema20 := calculateEMA(klines[:i+1], 20)
 			data.EMA20Values = append(data.EMA20Values, ema20)
+		}
+
+		if i >= 49 {
+			ema50 := calculateEMA(klines[:i+1], 50)
+			data.EMA50Values = append(data.EMA50Values, ema50)
 		}
 
 		// 计算每个点的MACD
@@ -259,6 +270,7 @@ func calculateLongerTermData(klines []Kline) *LongerTermData {
 	}
 
 	// 计算EMA
+	data.EMA5 = calculateEMA(klines, 5)
 	data.EMA20 = calculateEMA(klines, 20)
 	data.EMA50 = calculateEMA(klines, 50)
 
@@ -367,10 +379,13 @@ func getFundingRate(symbol string) (float64, error) {
 func Format(data *Data) string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("current_price = %.2f, current_ema20 = %.3f, current_macd = %.3f, current_rsi (7 period) = %.3f\n\n",
-		data.CurrentPrice, data.CurrentEMA20, data.CurrentMACD, data.CurrentRSI7))
+	//sb.WriteString(fmt.Sprintf("current_price = %.2f, current_macd = %.3f, current_rsi (7 period) = %.3f\n\n",
+	//	data.CurrentPrice, data.CurrentMACD, data.CurrentRSI7))
 
-	sb.WriteString(fmt.Sprintf("In addition, here is the latest %s open interest and funding rate for perps:\n\n",
+	//sb.WriteString(fmt.Sprintf("In addition, here is the latest %s open interest and funding rate for perps:\n\n",
+	//	data.Symbol))
+
+	sb.WriteString(fmt.Sprintf("Here is the latest %s open interest and funding rate for perps:\n\n",
 		data.Symbol))
 
 	if data.OpenInterest != nil {
@@ -387,8 +402,16 @@ func Format(data *Data) string {
 			sb.WriteString(fmt.Sprintf("Mid prices: %s\n\n", formatFloatSlice(data.IntradaySeries.MidPrices)))
 		}
 
+		if len(data.IntradaySeries.EMA5Values) > 0 {
+			sb.WriteString(fmt.Sprintf("EMA indicators (5‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA5Values)))
+		}
+
 		if len(data.IntradaySeries.EMA20Values) > 0 {
 			sb.WriteString(fmt.Sprintf("EMA indicators (20‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA20Values)))
+		}
+
+		if len(data.IntradaySeries.EMA50Values) > 0 {
+			sb.WriteString(fmt.Sprintf("EMA indicators (50‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA50Values)))
 		}
 
 		if len(data.IntradaySeries.MACDValues) > 0 {
@@ -404,32 +427,32 @@ func Format(data *Data) string {
 		}
 	}
 
-	if data.MiddleTermContext != nil {
-		sb.WriteString("Medium‑term context (30m timeframe):\n\n")
-
-		sb.WriteString(fmt.Sprintf("20‑Period EMA: %.3f vs. 50‑Period EMA: %.3f\n\n",
-			data.MiddleTermContext.EMA20, data.MiddleTermContext.EMA50))
-
-		sb.WriteString(fmt.Sprintf("3‑Period ATR: %.3f vs. 14‑Period ATR: %.3f\n\n",
-			data.MiddleTermContext.ATR3, data.MiddleTermContext.ATR14))
-
-		sb.WriteString(fmt.Sprintf("Current Volume: %.3f vs. Average Volume: %.3f\n\n",
-			data.MiddleTermContext.CurrentVolume, data.MiddleTermContext.AverageVolume))
-
-		if len(data.MiddleTermContext.MACDValues) > 0 {
-			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDValues)))
-		}
-
-		if len(data.MiddleTermContext.RSI14Values) > 0 {
-			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.MiddleTermContext.RSI14Values)))
-		}
-	}
+	//if data.MiddleTermContext != nil {
+	//	sb.WriteString("Medium‑term context (30m timeframe):\n\n")
+	//
+	//	sb.WriteString(fmt.Sprintf("5‑Period EMA: %.3f vs. 20‑Period EMA: %.3f vs. 50‑Period EMA: %.3f\n\n",
+	//		data.MiddleTermContext.EMA5, data.MiddleTermContext.EMA20, data.MiddleTermContext.EMA50))
+	//
+	//	sb.WriteString(fmt.Sprintf("3‑Period ATR: %.3f vs. 14‑Period ATR: %.3f\n\n",
+	//		data.MiddleTermContext.ATR3, data.MiddleTermContext.ATR14))
+	//
+	//	sb.WriteString(fmt.Sprintf("Current Volume: %.3f vs. Average Volume: %.3f\n\n",
+	//		data.MiddleTermContext.CurrentVolume, data.MiddleTermContext.AverageVolume))
+	//
+	//	if len(data.MiddleTermContext.MACDValues) > 0 {
+	//		sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDValues)))
+	//	}
+	//
+	//	if len(data.MiddleTermContext.RSI14Values) > 0 {
+	//		sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.MiddleTermContext.RSI14Values)))
+	//	}
+	//}
 
 	if data.LongerTermContext != nil {
 		sb.WriteString("Longer‑term context (4‑hour timeframe):\n\n")
 
-		sb.WriteString(fmt.Sprintf("20‑Period EMA: %.3f vs. 50‑Period EMA: %.3f\n\n",
-			data.LongerTermContext.EMA20, data.LongerTermContext.EMA50))
+		sb.WriteString(fmt.Sprintf("5‑Period EMA: %.3f vs. 20‑Period EMA: %.3f vs. 50‑Period EMA: %.3f\n\n",
+			data.LongerTermContext.EMA5, data.LongerTermContext.EMA20, data.LongerTermContext.EMA50))
 
 		sb.WriteString(fmt.Sprintf("3‑Period ATR: %.3f vs. 14‑Period ATR: %.3f\n\n",
 			data.LongerTermContext.ATR3, data.LongerTermContext.ATR14))
