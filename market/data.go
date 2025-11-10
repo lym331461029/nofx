@@ -225,7 +225,6 @@ func calculateIntradaySeries(klines []Kline) *IntradayData {
 
 	for i := start; i < len(klines); i++ {
 		data.MidPrices = append(data.MidPrices, klines[i].Close)
-
 		if i >= 4 {
 			ema4 := calculateEMA(klines[:i+1], 4)
 			data.EMA5Values = append(data.EMA5Values, ema4)
@@ -427,47 +426,47 @@ func Format(data *Data) string {
 		}
 	}
 
-	//if data.MiddleTermContext != nil {
-	//	sb.WriteString("Medium‑term context (30m timeframe):\n\n")
-	//
-	//	sb.WriteString(fmt.Sprintf("5‑Period EMA: %.3f vs. 20‑Period EMA: %.3f vs. 50‑Period EMA: %.3f\n\n",
-	//		data.MiddleTermContext.EMA5, data.MiddleTermContext.EMA20, data.MiddleTermContext.EMA50))
-	//
-	//	sb.WriteString(fmt.Sprintf("3‑Period ATR: %.3f vs. 14‑Period ATR: %.3f\n\n",
-	//		data.MiddleTermContext.ATR3, data.MiddleTermContext.ATR14))
-	//
-	//	sb.WriteString(fmt.Sprintf("Current Volume: %.3f vs. Average Volume: %.3f\n\n",
-	//		data.MiddleTermContext.CurrentVolume, data.MiddleTermContext.AverageVolume))
-	//
-	//	if len(data.MiddleTermContext.MACDValues) > 0 {
-	//		sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDValues)))
-	//	}
-	//
-	//	if len(data.MiddleTermContext.RSI14Values) > 0 {
-	//		sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.MiddleTermContext.RSI14Values)))
-	//	}
-	//}
-
-	if data.LongerTermContext != nil {
-		sb.WriteString("Longer‑term context (4‑hour timeframe):\n\n")
+	if data.MiddleTermContext != nil {
+		sb.WriteString("Medium‑term context (30m timeframe):\n\n")
 
 		sb.WriteString(fmt.Sprintf("5‑Period EMA: %.3f vs. 20‑Period EMA: %.3f vs. 50‑Period EMA: %.3f\n\n",
-			data.LongerTermContext.EMA5, data.LongerTermContext.EMA20, data.LongerTermContext.EMA50))
+			data.MiddleTermContext.EMA5, data.MiddleTermContext.EMA20, data.MiddleTermContext.EMA50))
 
 		sb.WriteString(fmt.Sprintf("3‑Period ATR: %.3f vs. 14‑Period ATR: %.3f\n\n",
-			data.LongerTermContext.ATR3, data.LongerTermContext.ATR14))
+			data.MiddleTermContext.ATR3, data.MiddleTermContext.ATR14))
 
 		sb.WriteString(fmt.Sprintf("Current Volume: %.3f vs. Average Volume: %.3f\n\n",
-			data.LongerTermContext.CurrentVolume, data.LongerTermContext.AverageVolume))
+			data.MiddleTermContext.CurrentVolume, data.MiddleTermContext.AverageVolume))
 
-		if len(data.LongerTermContext.MACDValues) > 0 {
-			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.LongerTermContext.MACDValues)))
+		if len(data.MiddleTermContext.MACDValues) > 0 {
+			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDValues)))
 		}
 
-		if len(data.LongerTermContext.RSI14Values) > 0 {
-			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.LongerTermContext.RSI14Values)))
+		if len(data.MiddleTermContext.RSI14Values) > 0 {
+			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.MiddleTermContext.RSI14Values)))
 		}
 	}
+
+	//if data.LongerTermContext != nil {
+	//	sb.WriteString("Longer‑term context (4‑hour timeframe):\n\n")
+	//
+	//	sb.WriteString(fmt.Sprintf("5‑Period EMA: %.3f vs. 20‑Period EMA: %.3f vs. 50‑Period EMA: %.3f\n\n",
+	//		data.LongerTermContext.EMA5, data.LongerTermContext.EMA20, data.LongerTermContext.EMA50))
+	//
+	//	sb.WriteString(fmt.Sprintf("3‑Period ATR: %.3f vs. 14‑Period ATR: %.3f\n\n",
+	//		data.LongerTermContext.ATR3, data.LongerTermContext.ATR14))
+	//
+	//	sb.WriteString(fmt.Sprintf("Current Volume: %.3f vs. Average Volume: %.3f\n\n",
+	//		data.LongerTermContext.CurrentVolume, data.LongerTermContext.AverageVolume))
+	//
+	//	if len(data.LongerTermContext.MACDValues) > 0 {
+	//		sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.LongerTermContext.MACDValues)))
+	//	}
+	//
+	//	if len(data.LongerTermContext.RSI14Values) > 0 {
+	//		sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.LongerTermContext.RSI14Values)))
+	//	}
+	//}
 
 	return sb.String()
 }

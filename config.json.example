@@ -12,13 +12,11 @@
     "SOLUSDT",
     "BNBUSDT",
     "XRPUSDT",
-    "DOGEUSDT",
-    "ADAUSDT",
-    "HYPEUSDT"
+    "DOGEUSDT"
   ],
   "api_server_port": 8080,
   "max_daily_loss": 10.0,
   "max_drawdown": 20.0,
   "stop_trading_minutes": 60,
-  "jwt_secret": "Qk0kAa+d0iIEzXVHXbNbm+UaN3RNabmWtH8rDWZ5OPf+4GX8pBflAHodfpbipVMyrw1fsDanHsNBjhgbDeK9Jg=="
+  "jwt_secret": ""
 }

@@ -623,6 +623,9 @@ func (at *AutoTrader) executeOpenLongWithRecord(decision *decision.Decision, act
 
 	// 计算数量
 	positionSizeUsd := decision.PositionSizeUSD * 0.85
+	if positionSizeUsd > 2000 {
+		positionSizeUsd = 2000 // 单笔开仓金额上限2000 USDT
+	}
 	quantity := positionSizeUsd / marketData.CurrentPrice
 	actionRecord.Quantity = quantity
 	actionRecord.Price = marketData.CurrentPrice
@@ -683,6 +686,9 @@ func (at *AutoTrader) executeOpenShortWithRecord(decision *decision.Decision, ac
 
 	// 计算数量
 	positionSizeUSD := decision.PositionSizeUSD * 0.85
+	if positionSizeUSD > 2000 {
+		positionSizeUSD = 2000 // 单笔开仓金额上限2000 US
+	}
 	quantity := positionSizeUSD / marketData.CurrentPrice
 	actionRecord.Quantity = quantity
 	actionRecord.Price = marketData.CurrentPrice
