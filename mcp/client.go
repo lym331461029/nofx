@@ -189,7 +189,7 @@ func (client *Client) callOnce(systemPrompt, userPrompt string) (string, error) 
 	requestBody := map[string]interface{}{
 		"model":       client.Model,
 		"messages":    messages,
-		"temperature": 0.5, // 降低temperature以提高JSON格式稳定性
+		"temperature": 0.2, // 降低temperature以提高JSON格式稳定性
 		"max_tokens":  2000,
 	}
 
