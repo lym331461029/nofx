@@ -3,6 +3,7 @@ package market
 import (
 	"encoding/json"
 	"fmt"
+	talib "github.com/markcheno/go-talib"
 	"io"
 	"math"
 	"net/http"
@@ -209,54 +210,70 @@ func calculateATR(klines []Kline, period int) float64 {
 // calculateIntradaySeries 计算日内系列数据
 func calculateIntradaySeries(klines []Kline) *IntradayData {
 	data := &IntradayData{
-		MidPrices:   make([]float64, 0, 10),
-		EMA5Values:  make([]float64, 0, 10),
-		EMA20Values: make([]float64, 0, 10),
-		MACDValues:  make([]float64, 0, 10),
-		RSI7Values:  make([]float64, 0, 10),
-		RSI14Values: make([]float64, 0, 10),
+		//MidPrices:        make([]float64, 0, 10),
+		//EMA5Values:       make([]float64, 0, 10),
+		//EMA20Values:      make([]float64, 0, 10),
+		//MACDValues:       make([]float64, 0, 10),
+		//MACDSignalValues: make([]float64, 0, 10),
+		//MACDHistValues:   make([]float64, 0, 10),
+		//RSI7Values:       make([]float64, 0, 10),
+		//RSI14Values:      make([]float64, 0, 10),
 	}
+
+	for i := range klines {
+		data.MidPrices = append(data.MidPrices, klines[i].Close)
+	}
+
+	// 计算EMA、MACD、RSI等指标
+	data.MACDValues, data.MACDSignalValues, data.MACDHistValues = talib.Macd(data.MidPrices, 12, 26, 9)
+	data.EMA5Values = talib.Ema(data.MidPrices, 5)
+	data.EMA20Values = talib.Ema(data.MidPrices, 20)
+	data.EMA50Values = talib.Ema(data.MidPrices, 50)
+	data.RSI7Values = talib.Rsi(data.MidPrices, 7)
+	data.RSI14Values = talib.Rsi(data.MidPrices, 14)
+	data.Adx7Values = talib.Adx(data.MidPrices, data.MidPrices, data.MidPrices, 7)
+	data.Adx14Values = talib.Adx(data.MidPrices, data.MidPrices, data.MidPrices, 14)
 
 	// 获取最近10个数据点
-	start := len(klines) - 10
-	if start < 0 {
-		start = 0
-	}
+	//start := len(klines) - 10
+	//if start < 0 {
+	//	start = 0
+	//}
 
-	for i := start; i < len(klines); i++ {
-		data.MidPrices = append(data.MidPrices, klines[i].Close)
-		if i >= 4 {
-			ema4 := calculateEMA(klines[:i+1], 4)
-			data.EMA5Values = append(data.EMA5Values, ema4)
-		}
-
-		// 计算每个点的EMA20
-		if i >= 19 {
-			ema20 := calculateEMA(klines[:i+1], 20)
-			data.EMA20Values = append(data.EMA20Values, ema20)
-		}
-
-		if i >= 49 {
-			ema50 := calculateEMA(klines[:i+1], 50)
-			data.EMA50Values = append(data.EMA50Values, ema50)
-		}
-
-		// 计算每个点的MACD
-		if i >= 25 {
-			macd := calculateMACD(klines[:i+1])
-			data.MACDValues = append(data.MACDValues, macd)
-		}
-
-		// 计算每个点的RSI
-		if i >= 7 {
-			rsi7 := calculateRSI(klines[:i+1], 7)
-			data.RSI7Values = append(data.RSI7Values, rsi7)
-		}
-		if i >= 14 {
-			rsi14 := calculateRSI(klines[:i+1], 14)
-			data.RSI14Values = append(data.RSI14Values, rsi14)
-		}
-	}
+	//for i := start; i < len(klines); i++ {
+	//	data.MidPrices = append(data.MidPrices, klines[i].Close)
+	//	if i >= 4 {
+	//		ema4 := calculateEMA(klines[:i+1], 4)
+	//		data.EMA5Values = append(data.EMA5Values, ema4)
+	//	}
+	//
+	//	// 计算每个点的EMA20
+	//	if i >= 19 {
+	//		ema20 := calculateEMA(klines[:i+1], 20)
+	//		data.EMA20Values = append(data.EMA20Values, ema20)
+	//	}
+	//
+	//	if i >= 49 {
+	//		ema50 := calculateEMA(klines[:i+1], 50)
+	//		data.EMA50Values = append(data.EMA50Values, ema50)
+	//	}
+	//
+	//	// 计算每个点的MACD
+	//	if i >= 25 {
+	//		macd := calculateMACD(klines[:i+1])
+	//		data.MACDValues = append(data.MACDValues, macd)
+	//	}
+	//
+	//	// 计算每个点的RSI
+	//	if i >= 7 {
+	//		rsi7 := calculateRSI(klines[:i+1], 7)
+	//		data.RSI7Values = append(data.RSI7Values, rsi7)
+	//	}
+	//	if i >= 14 {
+	//		rsi14 := calculateRSI(klines[:i+1], 14)
+	//		data.RSI14Values = append(data.RSI14Values, rsi14)
+	//	}
+	//}
 
 	return data
 }
@@ -264,8 +281,8 @@ func calculateIntradaySeries(klines []Kline) *IntradayData {
 // calculateLongerTermData 计算长期数据
 func calculateLongerTermData(klines []Kline) *LongerTermData {
 	data := &LongerTermData{
-		MACDValues:  make([]float64, 0, 10),
-		RSI14Values: make([]float64, 0, 10),
+		MACDValues: make([]float64, 0, 10),
+		//RSI14Values: make([]float64, 0, 10),
 	}
 
 	// 计算EMA
@@ -294,16 +311,23 @@ func calculateLongerTermData(klines []Kline) *LongerTermData {
 		start = 0
 	}
 
-	for i := start; i < len(klines); i++ {
-		if i >= 25 {
-			macd := calculateMACD(klines[:i+1])
-			data.MACDValues = append(data.MACDValues, macd)
-		}
-		if i >= 14 {
-			rsi14 := calculateRSI(klines[:i+1], 14)
-			data.RSI14Values = append(data.RSI14Values, rsi14)
-		}
+	closed := make([]float64, len(klines))
+	for i := range klines {
+		closed[i] = klines[i].Close
 	}
+	data.MACDValues, data.MacdSignalValues, data.MACDHistValues = talib.Macd(closed, 12, 26, 9)
+	data.RSI14Values = talib.Rsi(closed, 14)
+
+	//for i := start; i < len(klines); i++ {
+	//	if i >= 25 {
+	//		macd := calculateMACD(klines[:i+1])
+	//		data.MACDValues = append(data.MACDValues, macd)
+	//	}
+	//	if i >= 14 {
+	//		rsi14 := calculateRSI(klines[:i+1], 14)
+	//		data.RSI14Values = append(data.RSI14Values, rsi14)
+	//	}
+	//}
 
 	return data
 }
@@ -398,31 +422,47 @@ func Format(data *Data) string {
 		sb.WriteString("Intraday series (5‑minute intervals, oldest → latest):\n\n")
 
 		if len(data.IntradaySeries.MidPrices) > 0 {
-			sb.WriteString(fmt.Sprintf("Mid prices: %s\n\n", formatFloatSlice(data.IntradaySeries.MidPrices)))
+			sb.WriteString(fmt.Sprintf("Mid prices: %s\n\n", formatFloatSlice(data.IntradaySeries.MidPrices[len(data.IntradaySeries.MidPrices)-10:])))
 		}
 
 		if len(data.IntradaySeries.EMA5Values) > 0 {
-			sb.WriteString(fmt.Sprintf("EMA indicators (5‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA5Values)))
+			sb.WriteString(fmt.Sprintf("EMA indicators (5‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA5Values[len(data.IntradaySeries.EMA5Values)-10:])))
 		}
 
 		if len(data.IntradaySeries.EMA20Values) > 0 {
-			sb.WriteString(fmt.Sprintf("EMA indicators (20‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA20Values)))
+			sb.WriteString(fmt.Sprintf("EMA indicators (20‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA20Values[len(data.IntradaySeries.EMA20Values)-10:])))
 		}
 
 		if len(data.IntradaySeries.EMA50Values) > 0 {
-			sb.WriteString(fmt.Sprintf("EMA indicators (50‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA50Values)))
+			sb.WriteString(fmt.Sprintf("EMA indicators (50‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA50Values[len(data.IntradaySeries.EMA20Values)-10:])))
 		}
 
 		if len(data.IntradaySeries.MACDValues) > 0 {
-			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDValues)))
+			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDValues[len(data.IntradaySeries.EMA20Values)-10:])))
+		}
+
+		if len(data.IntradaySeries.MACDSignalValues) > 0 {
+			sb.WriteString(fmt.Sprintf("MACD Signal indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDSignalValues[len(data.IntradaySeries.EMA20Values)-10:])))
+		}
+
+		if len(data.IntradaySeries.MACDHistValues) > 0 {
+			sb.WriteString(fmt.Sprintf("MACD Histogram indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDHistValues[len(data.IntradaySeries.EMA20Values)-10:])))
 		}
 
 		if len(data.IntradaySeries.RSI7Values) > 0 {
-			sb.WriteString(fmt.Sprintf("RSI indicators (7‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI7Values)))
+			sb.WriteString(fmt.Sprintf("RSI indicators (7‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI7Values[len(data.IntradaySeries.EMA20Values)-10:])))
 		}
 
 		if len(data.IntradaySeries.RSI14Values) > 0 {
-			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI14Values)))
+			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI14Values[len(data.IntradaySeries.EMA20Values)-10:])))
+		}
+
+		if len(data.IntradaySeries.Adx7Values) > 0 {
+			sb.WriteString(fmt.Sprintf("ADX indicators (7‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.Adx7Values[len(data.IntradaySeries.EMA20Values)-10:])))
+		}
+
+		if len(data.IntradaySeries.Adx14Values) > 0 {
+			sb.WriteString(fmt.Sprintf("ADX indicators (14‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.Adx14Values[len(data.IntradaySeries.EMA20Values)-10:])))
 		}
 	}
 
@@ -439,11 +479,17 @@ func Format(data *Data) string {
 			data.MiddleTermContext.CurrentVolume, data.MiddleTermContext.AverageVolume))
 
 		if len(data.MiddleTermContext.MACDValues) > 0 {
-			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDValues)))
+			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDValues[len(data.MiddleTermContext.MACDValues)-10:])))
+		}
+		if len(data.MiddleTermContext.MacdSignalValues) > 0 {
+			sb.WriteString(fmt.Sprintf("MACD Signal indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MacdSignalValues[len(data.MiddleTermContext.MacdSignalValues)-10:])))
+		}
+		if len(data.MiddleTermContext.MACDHistValues) > 0 {
+			sb.WriteString(fmt.Sprintf("MACD Histogram indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDHistValues[len(data.MiddleTermContext.MACDHistValues)-10:])))
 		}
 
 		if len(data.MiddleTermContext.RSI14Values) > 0 {
-			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.MiddleTermContext.RSI14Values)))
+			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.MiddleTermContext.RSI14Values[len(data.MiddleTermContext.RSI14Values)-10:])))
 		}
 	}
 
