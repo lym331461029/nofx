@@ -521,7 +521,7 @@ func Format(data *Data) string {
 func formatFloatSlice(values []float64) string {
 	strValues := make([]string, len(values))
 	for i, v := range values {
-		strValues[i] = fmt.Sprintf("%.3f", v)
+		strValues[i] = fmt.Sprintf("%.6f", v)
 	}
 	return "[" + strings.Join(strValues, ", ") + "]"
 }
