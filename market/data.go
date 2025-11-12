@@ -423,47 +423,47 @@ func Format(data *Data) string {
 		sb.WriteString("Intraday series (30‑minute intervals, oldest → latest):\n\n")
 
 		if len(data.IntradaySeries.MidPrices) > 0 {
-			sb.WriteString(fmt.Sprintf("Mid prices: %s\n\n", formatFloatSlice(data.IntradaySeries.MidPrices[len(data.IntradaySeries.MidPrices)-10:])))
+			sb.WriteString(fmt.Sprintf("Mid prices: %s\n\n", formatFloatSlice(data.IntradaySeries.MidPrices[len(data.IntradaySeries.MidPrices)-60:])))
 		}
 
 		if len(data.IntradaySeries.EMA5Values) > 0 {
-			sb.WriteString(fmt.Sprintf("EMA indicators (5‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA5Values[len(data.IntradaySeries.EMA5Values)-10:])))
+			sb.WriteString(fmt.Sprintf("EMA indicators (5‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA5Values[len(data.IntradaySeries.EMA5Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.EMA20Values) > 0 {
-			sb.WriteString(fmt.Sprintf("EMA indicators (20‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA20Values[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("EMA indicators (20‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA20Values[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.EMA50Values) > 0 {
-			sb.WriteString(fmt.Sprintf("EMA indicators (50‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA50Values[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("EMA indicators (50‑period): %s\n\n", formatFloatSlice(data.IntradaySeries.EMA50Values[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.MACDValues) > 0 {
-			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDValues[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDValues[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.MACDSignalValues) > 0 {
-			sb.WriteString(fmt.Sprintf("MACD Signal indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDSignalValues[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("MACD Signal indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDSignalValues[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.MACDHistValues) > 0 {
-			sb.WriteString(fmt.Sprintf("MACD Histogram indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDHistValues[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("MACD Histogram indicators: %s\n\n", formatFloatSlice(data.IntradaySeries.MACDHistValues[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.RSI7Values) > 0 {
-			sb.WriteString(fmt.Sprintf("RSI indicators (7‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI7Values[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("RSI indicators (7‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI7Values[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.RSI14Values) > 0 {
-			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI14Values[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.RSI14Values[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.Adx7Values) > 0 {
-			sb.WriteString(fmt.Sprintf("ADX indicators (7‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.Adx7Values[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("ADX indicators (7‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.Adx7Values[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 
 		if len(data.IntradaySeries.Adx14Values) > 0 {
-			sb.WriteString(fmt.Sprintf("ADX indicators (14‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.Adx14Values[len(data.IntradaySeries.EMA20Values)-10:])))
+			sb.WriteString(fmt.Sprintf("ADX indicators (14‑Period): %s\n\n", formatFloatSlice(data.IntradaySeries.Adx14Values[len(data.IntradaySeries.EMA20Values)-60:])))
 		}
 	}
 
@@ -480,17 +480,17 @@ func Format(data *Data) string {
 	//		data.MiddleTermContext.CurrentVolume, data.MiddleTermContext.AverageVolume))
 	//
 	//	if len(data.MiddleTermContext.MACDValues) > 0 {
-	//		sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDValues[len(data.MiddleTermContext.MACDValues)-10:])))
+	//		sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDValues[len(data.MiddleTermContext.MACDValues)-60:])))
 	//	}
 	//	if len(data.MiddleTermContext.MacdSignalValues) > 0 {
-	//		sb.WriteString(fmt.Sprintf("MACD Signal indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MacdSignalValues[len(data.MiddleTermContext.MacdSignalValues)-10:])))
+	//		sb.WriteString(fmt.Sprintf("MACD Signal indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MacdSignalValues[len(data.MiddleTermContext.MacdSignalValues)-60:])))
 	//	}
 	//	if len(data.MiddleTermContext.MACDHistValues) > 0 {
-	//		sb.WriteString(fmt.Sprintf("MACD Histogram indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDHistValues[len(data.MiddleTermContext.MACDHistValues)-10:])))
+	//		sb.WriteString(fmt.Sprintf("MACD Histogram indicators: %s\n\n", formatFloatSlice(data.MiddleTermContext.MACDHistValues[len(data.MiddleTermContext.MACDHistValues)-60:])))
 	//	}
 	//
 	//	if len(data.MiddleTermContext.RSI14Values) > 0 {
-	//		sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.MiddleTermContext.RSI14Values[len(data.MiddleTermContext.RSI14Values)-10:])))
+	//		sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.MiddleTermContext.RSI14Values[len(data.MiddleTermContext.RSI14Values)-60:])))
 	//	}
 	//}
 
@@ -507,11 +507,11 @@ func Format(data *Data) string {
 			data.LongerTermContext.CurrentVolume, data.LongerTermContext.AverageVolume))
 
 		if len(data.LongerTermContext.MACDValues) > 0 {
-			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.LongerTermContext.MACDValues)))
+			sb.WriteString(fmt.Sprintf("MACD indicators: %s\n\n", formatFloatSlice(data.LongerTermContext.MACDValues[len(data.LongerTermContext.MACDValues)-60:])))
 		}
 
 		if len(data.LongerTermContext.RSI14Values) > 0 {
-			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.LongerTermContext.RSI14Values)))
+			sb.WriteString(fmt.Sprintf("RSI indicators (14‑Period): %s\n\n", formatFloatSlice(data.LongerTermContext.RSI14Values[len(data.LongerTermContext.RSI14Values)-60:])))
 		}
 	}
 
