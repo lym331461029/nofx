@@ -17,6 +17,7 @@ type WSMonitor struct {
 	alertsChan      chan Alert
 	klineDataMap5m  sync.Map // 存储每个交易对的K线历史数据
 	klineDataMap30m sync.Map
+	klineDataMap1h  sync.Map
 	klineDataMap4h  sync.Map // 存储每个交易对的K线历史数据
 	tickerDataMap   sync.Map // 存储每个交易对的ticker数据
 	batchSize       int
@@ -33,7 +34,7 @@ type SymbolStats struct {
 }
 
 var WSMonitorCli *WSMonitor
-var subKlineTime = []string{"5m", "30m", "4h"} // 管理订阅流的K线周期
+var subKlineTime = []string{"5m", "30m", "1h", "4h"} // 管理订阅流的K线周期
 
 func NewWSMonitor(batchSize int) *WSMonitor {
 	WSMonitorCli = &WSMonitor{
@@ -91,7 +92,7 @@ func (m *WSMonitor) initializeHistoricalData() error {
 			defer func() { <-semaphore }()
 
 			// 获取历史K线数据
-			klines, err := apiClient.GetKlines(s, "5m", 100)
+			klines, err := apiClient.GetKlines(s, "5m", 200)
 			if err != nil {
 				log.Printf("获取 %s 历史数据失败: %v", s, err)
 				return
@@ -102,7 +103,7 @@ func (m *WSMonitor) initializeHistoricalData() error {
 			}
 
 			// 获取历史K线数据
-			klines30m, err := apiClient.GetKlines(s, "30m", 100)
+			klines30m, err := apiClient.GetKlines(s, "30m", 200)
 			if err != nil {
 				log.Printf("获取 %s 历史数据失败: %v", s, err)
 				return
@@ -112,8 +113,18 @@ func (m *WSMonitor) initializeHistoricalData() error {
 				log.Printf("已加载 %s 的历史K线数据-30m: %d 条", s, len(klines30m))
 			}
 
+			klines1h, err := apiClient.GetKlines(s, "1h", 200)
+			if err != nil {
+				log.Printf("获取 %s 历史数据失败: %v", s, err)
+				return
+			}
+			if len(klines1h) > 0 {
+				m.klineDataMap1h.Store(s, klines1h)
+				log.Printf("已加载 %s 的历史K线数据-1h: %d 条", s, len(klines1h))
+			}
+
 			// 获取历史K线数据
-			klines4h, err := apiClient.GetKlines(s, "4h", 100)
+			klines4h, err := apiClient.GetKlines(s, "4h", 200)
 			if err != nil {
 				log.Printf("获取 %s 历史数据失败: %v", s, err)
 				return
@@ -197,6 +208,8 @@ func (m *WSMonitor) getKlineDataMap(_time string) *sync.Map {
 		klineDataMap = &m.klineDataMap5m
 	} else if _time == "30m" {
 		klineDataMap = &m.klineDataMap30m
+	} else if _time == "1h" {
+		klineDataMap = &m.klineDataMap1h
 	} else if _time == "4h" {
 		klineDataMap = &m.klineDataMap4h
 	} else {
@@ -236,7 +249,7 @@ func (m *WSMonitor) processKlineUpdate(symbol string, wsData KlineWSData, _time 
 			klines = append(klines, kline)
 
 			// 保持数据长度
-			if len(klines) > 100 {
+			if len(klines) > 200 {
 				klines = klines[1:]
 			}
 		}
