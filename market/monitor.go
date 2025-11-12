@@ -218,6 +218,11 @@ func (m *WSMonitor) getKlineDataMap(_time string) *sync.Map {
 	return klineDataMap
 }
 func (m *WSMonitor) processKlineUpdate(symbol string, wsData KlineWSData, _time string) {
+	// 只在k线段结束时才保存
+	if !wsData.Kline.IsFinal {
+		return
+	}
+
 	// 转换WebSocket数据为Kline结构
 	kline := Kline{
 		OpenTime:  wsData.Kline.StartTime,
@@ -233,6 +238,7 @@ func (m *WSMonitor) processKlineUpdate(symbol string, wsData KlineWSData, _time 
 	kline.QuoteVolume, _ = parseFloat(wsData.Kline.QuoteVolume)
 	kline.TakerBuyBaseVolume, _ = parseFloat(wsData.Kline.TakerBuyBaseVolume)
 	kline.TakerBuyQuoteVolume, _ = parseFloat(wsData.Kline.TakerBuyQuoteVolume)
+
 	// 更新K线数据
 	var klineDataMap = m.getKlineDataMap(_time)
 	value, exists := klineDataMap.Load(symbol)

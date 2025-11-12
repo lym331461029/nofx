@@ -43,22 +43,22 @@ func Get(symbol string) (*Data, error) {
 
 	// 计算价格变化百分比
 	// 1小时价格变化 = 20个5分钟K线前的价格
-	priceChange1h := 0.0
-	if len(klines30m) >= 21 { // 至少需要21根K线 (当前 + 20根前)
-		price1hAgo := klines30m[len(klines30m)-21].Close
-		if price1hAgo > 0 {
-			priceChange1h = ((currentPrice - price1hAgo) / price1hAgo) * 100
-		}
-	}
+	//priceChange1h := 0.0
+	//if len(klines30m) >= 21 { // 至少需要21根K线 (当前 + 20根前)
+	//	price1hAgo := klines30m[len(klines30m)-21].Close
+	//	if price1hAgo > 0 {
+	//		priceChange1h = ((currentPrice - price1hAgo) / price1hAgo) * 100
+	//	}
+	//}
 
 	// 4小时价格变化 = 1个4小时K线前的价格
-	priceChange4h := 0.0
-	if len(klines4h) >= 2 {
-		price4hAgo := klines4h[len(klines4h)-2].Close
-		if price4hAgo > 0 {
-			priceChange4h = ((currentPrice - price4hAgo) / price4hAgo) * 100
-		}
-	}
+	//priceChange4h := 0.0
+	//if len(klines4h) >= 2 {
+	//	price4hAgo := klines4h[len(klines4h)-2].Close
+	//	if price4hAgo > 0 {
+	//		priceChange4h = ((currentPrice - price4hAgo) / price4hAgo) * 100
+	//	}
+	//}
 
 	// 获取OI数据
 	oiData, err := getOpenInterestData(symbol)
@@ -79,10 +79,10 @@ func Get(symbol string) (*Data, error) {
 	longerTermData := calculateLongerTermData(klines4h)
 
 	return &Data{
-		Symbol:         symbol,
-		CurrentPrice:   currentPrice,
-		PriceChange1h:  priceChange1h,
-		PriceChange4h:  priceChange4h,
+		Symbol:       symbol,
+		CurrentPrice: currentPrice,
+		//PriceChange1h:  priceChange1h,
+		//PriceChange4h:  priceChange4h,
 		CurrentEMA20:   currentEMA20,
 		CurrentMACD:    currentMACD,
 		CurrentRSI7:    currentRSI7,

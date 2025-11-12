@@ -294,11 +294,11 @@ func buildUserPrompt(ctx *Context) string {
 		ctx.CurrentTime, ctx.CallCount, ctx.RuntimeMinutes))
 
 	// BTC 市场
-	if btcData, hasBTC := ctx.MarketDataMap["BTCUSDT"]; hasBTC {
-		sb.WriteString(fmt.Sprintf("BTC: %.2f (1h: %+.2f%%, 4h: %+.2f%%) | MACD: %.4f | RSI: %.2f\n\n",
-			btcData.CurrentPrice, btcData.PriceChange1h, btcData.PriceChange4h,
-			btcData.CurrentMACD, btcData.CurrentRSI7))
-	}
+	//if btcData, hasBTC := ctx.MarketDataMap["BTCUSDT"]; hasBTC {
+	//	sb.WriteString(fmt.Sprintf("BTC: %.2f (1h: %+.2f%%, 4h: %+.2f%%) | MACD: %.4f | RSI: %.2f\n\n",
+	//		btcData.CurrentPrice, btcData.PriceChange1h, btcData.PriceChange4h,
+	//		btcData.CurrentMACD, btcData.CurrentRSI7))
+	//}
 
 	// 账户
 	sb.WriteString(fmt.Sprintf("账户: 净值%.2f | 余额%.2f (%.1f%%) | 盈亏%+.2f%% | 保证金%.1f%% | 持仓%d个\n\n",
