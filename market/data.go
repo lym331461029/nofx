@@ -282,7 +282,7 @@ func calculateIntradaySeries(klines []Kline) *IntradayData {
 // calculateLongerTermData 计算长期数据
 func calculateLongerTermData(klines []Kline) *LongerTermData {
 	data := &LongerTermData{
-		MACDValues: make([]float64, 0, 10),
+		//MACDValues: make([]float64, 0, 10),
 		//RSI14Values: make([]float64, 0, 10),
 	}
 

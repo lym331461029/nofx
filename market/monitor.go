@@ -266,7 +266,7 @@ func (m *WSMonitor) GetCurrentKlines(symbol string, _time string) ([]Kline, erro
 	if !exists {
 		// 如果Ws数据未初始化完成时,单独使用api获取 - 兼容性代码 (防止在未初始化完成是,已经有交易员运行)
 		apiClient := NewAPIClient()
-		klines, err := apiClient.GetKlines(symbol, _time, 100)
+		klines, err := apiClient.GetKlines(symbol, _time, 200)
 		m.getKlineDataMap(_time).Store(strings.ToUpper(symbol), klines) //动态缓存进缓存
 		subStr := m.subscribeSymbol(symbol, _time)
 		subErr := m.combinedClient.subscribeStreams(subStr)
