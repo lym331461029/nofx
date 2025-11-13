@@ -33,6 +33,8 @@ func main() {
 	klinesExt.calcEma(20)
 	klinesExt.calcEma(60)
 	klinesExt.calcMacd()
+	klinesExt.calcRsi(7)
+	klinesExt.calcRsi(14)
 
 	data, _ := json.Marshal(klinesExt)
 	println(string(data))

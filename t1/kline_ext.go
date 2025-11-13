@@ -15,6 +15,8 @@ type KlineExt struct {
 	Macd       float64
 	MacdSignal float64
 	MacdHist   float64
+	Rsi7       float64
+	Rsi14      float64
 }
 
 func FromRawKline(rawKline *futures.Kline) *KlineExt {
@@ -78,4 +80,10 @@ func (kes *KLinesExtSlice) calcMacd() {
 	kes.setFieldSlice("Macd", macd)
 	kes.setFieldSlice("MacdSignal", signal)
 	kes.setFieldSlice("MacdHist", hist)
+}
+
+func (kes *KLinesExtSlice) calcRsi(period int) {
+	values := talib.Rsi(kes.ClosePrices(), period)
+	fieldName := "Rsi" + strconv.Itoa(period)
+	kes.setFieldSlice(fieldName, values)
 }
